@@ -62,12 +62,12 @@ namespace SimpleFileStorage.Model
         // исключения: FileNotFoundException если файл с таким id не найден
         public async Task<FileData> GetFileData(Guid fileID)
         {
-FileData? data = await _files.Get(fileID);
-if (data == null)
-{
-throw new FileNotFoundException();
-}
-return data;
+            FileData? data = await _files.Get(fileID);
+            if (data == null)
+            {
+                throw new FileNotFoundException();
+            }
+            return data;
         }
     }
 }
