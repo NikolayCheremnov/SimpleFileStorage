@@ -45,7 +45,7 @@ try
 
 } catch (Exception ex)
 {
-    app.Map("{*url}", () =>  { 
+    app.Map("{*url}", () => new { 
         Status="server is down",
         Error = ex.Message
     });
