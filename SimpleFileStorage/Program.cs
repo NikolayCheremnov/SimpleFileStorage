@@ -31,14 +31,25 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// ВКЛЮЧЕНИЕ КОНТРОЛЛЕРОВ (МАППИНГ)
-app.MapControllers();
+try
+{
 
-// ВЫЗОВ АВТОМИГРАЦИЙ БД
-await AutoApplyMigrationsWithBackoff();
+    // ВКЛЮЧЕНИЕ КОНТРОЛЛЕРОВ (МАППИНГ)
+    app.MapControllers();
 
-// ВЫЗОВ АВТОСОЗДАНИЯ БАКЕТА В S3
-await AutoEnsureS3BucketExistsWithBackoff();
+    // ВЫЗОВ АВТОМИГРАЦИЙ БД
+    await AutoApplyMigrationsWithBackoff();
+
+    // ВЫЗОВ АВТОСОЗДАНИЯ БАКЕТА В S3
+    await AutoEnsureS3BucketExistsWithBackoff();
+
+} catch (Exception ex)
+{
+    app.Map("{*url}", () =>  { 
+        Status="server is down",
+        Error = ex.Message
+    });
+}
 
 app.Run();
 
