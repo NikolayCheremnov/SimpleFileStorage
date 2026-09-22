@@ -1,0 +1,35 @@
+services:
+  app:
+    container_name: files-app
+    build:
+      dockerfile: ./SimpleFileStorage/Dockerfile
+      context: .
+    ports:
+      - "80:8080"
+    environment:
+      - DB_CONNECTION_PROFILE=docker
+      - S3_OPTIONS_PROFILE=docker
+    depends_on:
+      - postgres
+      - minio
+
+  postgres:
+    container_name: files-db
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=files_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  minio:
+    container_name: files-storage
+    image: dhi.io/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
