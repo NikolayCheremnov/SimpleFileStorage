@@ -1,0 +1,22 @@
+# имя workflow
+name: Quality check example worflow
+
+# тригер запуска
+on:
+  # при вливании в master
+  push:
+    branches: [ master ]
+  # при открытии pull-request-а на master
+  pull_request:
+    branches: [ master ]
+  # вручную
+  workflow_dispatch:
+
+# этапы workflow - они же "джобы" (jobs)
+jobs:
+  # тестовая джоба "Hello world!"
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: probe
+        run: echo "Hello world from probe job!"
