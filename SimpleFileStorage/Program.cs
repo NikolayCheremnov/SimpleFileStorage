@@ -43,10 +43,12 @@ try
     // ВЫЗОВ АВТОСОЗДАНИЯ БАКЕТА В S3
     await AutoEnsureS3BucketExistsWithBackoff();
 
-} catch (Exception ex)
+}
+catch (Exception ex)
 {
-    app.Map("{*url}", () => new { 
-        Status="server is down",
+    app.Map("{*url}", () => new
+    {
+        Status = "server is down",
         Error = ex.Message
     });
 }
