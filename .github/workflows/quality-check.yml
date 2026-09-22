@@ -1,0 +1,66 @@
+# имя workflow
+name: Quality check example worflow
+
+# тригер запуска
+on:
+  # при вливании в master
+  push:
+    branches: [ master ]
+  # при открытии pull-request-а на master
+  pull_request:
+    branches: [ master ]
+  # вручную
+  workflow_dispatch:
+
+# этапы workflow - они же "джобы" (jobs)
+jobs:
+  # тестовая джоба "Hello world!"
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: probe
+        run: echo "Hello world from probe job!"
+  
+  # выполнение линтера (запуск статического анализатора кода)
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore
+        run: dotnet restore
+      - name: Lint (verify no changes)
+        run: dotnet format --verify-no-changes
+  
+  # выполнение юнит-тестов
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: No implementation
+        run: echo "not implemented"
+  
+  # сборка артефакта
+  build-windows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Publish (win-x64)
+        run: |
+          dotnet publish SimpleFileStorage/SimpleFileStorage.csproj -c Release -r win-x64 --self-contained false -o win-x64
+      - name: Create zip artifact
+        run: |
+          zip -r win-x64.zip win-x64
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-x64
+          path: win-x64.zip  
