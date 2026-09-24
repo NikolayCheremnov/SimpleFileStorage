@@ -13,18 +13,18 @@ var builder = WebApplication.CreateBuilder(args);
 // builder.Services.AddSingleton<FileService>();
 
 // ВАРИАНТ ПРИЛОЖЕНИЯ С только Postgres
-// builder.Services.AddDbContext<AppDbContext>();
-// builder.Services.AddTransient<IFileDataStorage, FileStorage>();
-// builder.Services.AddTransient<IFileMetadataStorage, FileStorage>();
-// builder.Services.AddTransient<FileService>();
+builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddTransient<IFileDataStorage, FileStorage>();
+builder.Services.AddTransient<IFileMetadataStorage, FileStorage>();
+builder.Services.AddTransient<FileService>();
 
 // ВАРИАНТ ПРИЛОЖЕНИЯ С Postgres и S3
-builder.Services.AddDbContext<AppDbContext>();
-builder.Services.AddTransient<IFileMetadataStorage, FileStorage>();
-builder.Services.AddTransient<S3ServicesFactory>();
-builder.Services.AddTransient<IAmazonS3>(opts => opts.GetRequiredService<S3ServicesFactory>().CreateClient());
-builder.Services.AddTransient<IFileDataStorage>(opts => opts.GetRequiredService<S3ServicesFactory>().CreateStorage());
-builder.Services.AddTransient<FileService>();
+// builder.Services.AddDbContext<AppDbContext>();
+// builder.Services.AddTransient<IFileMetadataStorage, FileStorage>();
+// builder.Services.AddTransient<S3ServicesFactory>();
+// builder.Services.AddTransient<IAmazonS3>(opts => opts.GetRequiredService<S3ServicesFactory>().CreateClient());
+// builder.Services.AddTransient<IFileDataStorage>(opts => opts.GetRequiredService<S3ServicesFactory>().CreateStorage());
+// builder.Services.AddTransient<FileService>();
 
 // ДОБАВЛЕНИЕ КОНТРОЛЛЕРОВ В КОНТЕЙНЕР ЗАВИСИМОСТЕЙ (IoC-контейнер)
 builder.Services.AddControllers();
@@ -38,7 +38,7 @@ app.MapControllers();
 await AutoApplyMigrationsWithBackoff();
 
 // ВЫЗОВ АВТОСОЗДАНИЯ БАКЕТА В S3
-await AutoEnsureS3BucketExistsWithBackoff();
+// await AutoEnsureS3BucketExistsWithBackoff();
 
 app.Run();
 
