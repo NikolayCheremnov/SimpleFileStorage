@@ -69,5 +69,13 @@ namespace SimpleFileStorage.Model
             }
             return data;
         }
+
+        // GetAllFiles - получить данные обо всех файлах (в формате метаданных)
+        // вход: -
+        // выход: список метаданных всех файлов в системе
+        public async Task<List<FileMetadata>> GetAllFiles()
+        {
+            return await _metadatas.GetAll();
+        }
     }
 }

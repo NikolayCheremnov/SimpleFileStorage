@@ -78,5 +78,11 @@ namespace SimpleFileStorage.Api
                 return NotFound(new StringMessage("file not found"));
             }
         }
+
+        [HttpGet]
+        public async Task<List<FileMetadata>> GetAllFilesData()
+        {
+            return await _service.GetAllFiles();
+        }
     }
 }
