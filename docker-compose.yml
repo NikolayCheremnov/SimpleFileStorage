@@ -11,7 +11,7 @@ services:
       - S3_OPTIONS_PROFILE=docker
     depends_on:
       - postgres
-      - minio
+      # - minio
 
   postgres:
     container_name: files-db
