@@ -35,5 +35,10 @@ namespace SimpleFileStorage.Stub
         {
             return _metadatas.GetValueOrDefault(fileID);
         }
+
+        public async Task<List<FileMetadata>> GetAll()
+        {
+            return _metadatas.Values.ToList();
+        }
     }
 }
