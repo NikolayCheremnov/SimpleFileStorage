@@ -5,5 +5,6 @@
     {
         Task Insert(FileMetadata metadata);
         Task<FileMetadata?> Get(Guid fileID);
+        Task<List<FileMetadata>> GetAll();
     }
 }
