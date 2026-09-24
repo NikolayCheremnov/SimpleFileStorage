@@ -64,11 +64,8 @@ jobs:
       - name: Publish (win-x64)
         run: |
           dotnet publish SimpleFileStorage/SimpleFileStorage.csproj -c Release -r win-x64 --self-contained false -o win-x64
-      - name: Create zip artifact
-        run: |
-          zip -r win-x64.zip win-x64
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: win-x64
-          path: ./
+          path: win-x64
