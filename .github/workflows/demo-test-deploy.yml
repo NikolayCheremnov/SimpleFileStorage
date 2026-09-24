@@ -1,0 +1,77 @@
+name: Deploy on demo-test server
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # зададим локальные env-переменные
+    env:
+      REMOTE_ARCHIVE: "app.tar.gz"
+      REMOTE_TMP_DIR: "~/tmp/app"
+      REMOTE_APP_DIR: "~/app"
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Create deployment archive
+        run: |
+          tar --exclude='.git' \
+              --exclude='*/bin' \
+              --exclude='*/obj' \
+              --exclude='${{ env.REMOTE_ARCHIVE }}' \
+              -czf /${{ env.REMOTE_ARCHIVE }} .
+          mv /tmp/${{ env.REMOTE_ARCHIVE }} .
+      
+      - name: Ensure remote tmp directory
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+              mkdir -p ~/tmp
+
+      - name: Upload archive to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: ${{ env.REMOTE_ARCHIVE }}
+          target: ~/tmp
+
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: REMOTE_ARCHIVE,REMOTE_TMP_DIR,REMOTE_APP_DIR
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            TMP_DIR=${REMOTE_TMP_DIR/#~/$HOME}
+            APP_DIR=${REMOTE_APP_DIR/#~/$HOME}
+            ARCHIVE_PATH=$HOME/tmp/${REMOTE_ARCHIVE}
+
+            rm -rf "$TMP_DIR"
+            mkdir -p "$TMP_DIR"
+            tar -xzf "$ARCHIVE_PATH" -C "$TMP_DIR"
+            rm -f "$ARCHIVE_PATH"
+
+            if [ -d "$APP_DIR" ]; then
+              echo "Stopping existing containers"
+              (cd "$APP_DIR" && sudo docker compose stop || true)
+              rm -rf "$APP_DIR"
+            fi
+
+            mv "$TMP_DIR" "$APP_DIR"
+            cd "$APP_DIR"
+            sudo docker compose up -d --build
